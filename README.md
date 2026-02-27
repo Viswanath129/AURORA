@@ -1,4 +1,3 @@
-
 # Cloud Moment Detection with AURORA Architecture
 
 This repository implements **AURORA (Advection-morphology-emergence-temporal-reasoning for Cloud Nowcasting)**, a geospatial reasoning framework inspired by Google Research.
