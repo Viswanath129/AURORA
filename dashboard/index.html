@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURORA Dashboard</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;600&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        /* Embedding styles to ensure loading */
+        :root {
+            --bg-dark: #0a0b1e;
+            --bg-panel: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --primary: #00f0ff;
+            /* Cyan */
+            --secondary: #7000ff;
+            /* Purple */
+            --accent: #ff0055;
+            /* Pink/Red */
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --font-main: 'Outfit', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+            --shadow-lg: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            --blur: blur(16px);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 10% 20%, rgba(112, 0, 255, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.1) 0%, transparent 40%);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            /* App-like feel */
+            display: flex;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            border-right: 1px solid var(--glass-border);
+            background: rgba(10, 11, 30, 0.6);
+            backdrop-filter: var(--blur);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+        }
+
+        .logo {
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo::before {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .nav-section h3 {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+        }
+
+        .sample-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .sample-item {
+            padding: 1rem;
+            background: var(--bg-panel);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.9rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sample-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .sample-item.active {
+            background: rgba(0, 240, 255, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+        }
+
+        .sample-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(5, 5, 16, 0.3);
+            position: relative;
+            overflow-y: auto;
+            padding: 2rem;
+            gap: 2rem;
+        }
+
+        /* Header / Metrics */
+        .header {
+            margin-bottom: 1rem;
+        }
+
+        .metrics-row {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .metric-card {
+            flex: 1;
+            min-width: 140px;
+            background: var(--bg-panel);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .metric-card .label {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .metric-card .value {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .metric-card .sub-value {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .metric-card.highlight {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(112, 0, 255, 0.05));
+            border-color: var(--primary);
+        }
+
+        .metric-card.highlight .value {
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+        }
+
+
+        /* Panels */
+        .panel {
+            background: rgba(15, 20, 35, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 2rem;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .panel-header h2 {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-main);
+            font-family: var(--font-mono);
+        }
+
+        /* Grids */
+        .grid-5 {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+        }
+
+        .grid-2x2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            /* Add rows explicitly if needed */
+            gap: 1rem;
+        }
+
+
+        /* Images */
+        .img-wrapper {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            background: #000;
+            aspect-ratio: 16/9;
+            /* Or whatever aspect ratio your images are */
+        }
+
+        .img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .img-wrapper:hover img {
+            transform: scale(1.05);
+        }
+
+        .overlay-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            padding: 0.75rem;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: #fff;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: all 0.3s ease;
+        }
+
+        .img-wrapper:hover .overlay-label {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Layout Split */
+        .split-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Result Panel */
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            /* Aurora, GT, Error */
+            gap: 1.5rem;
+        }
+
+        .btn {
+            background: var(--bg-panel);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Background Canvas */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar / Navigation -->
+        <aside class="sidebar glass">
+            <div class="logo">
+                <div class="logo-icon"></div>
+                <h1>AURORA</h1>
+            </div>
+
+            <div class="nav-section">
+                <h3>SAMPLES</h3>
+                <div id="sample-list" class="sample-list">
+                    <!-- Sample items injected via JS -->
+                    <div class="sample-item loading">Loading...</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header glass">
+                <div class="metrics-row" id="metrics-summary">
+                    <!-- Metrics injected via JS -->
+                    <div class="metric-card">
+                        <span class="label">Loading Metrics...</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Viewer Area -->
+            <div class="viewer-area">
+
+                <!-- Top Row: Input Sequence & GT -->
+                <div class="panel glass inputs-panel">
+                    <div class="panel-header">
+                        <h2>Input Sequence (t-3 to t) & Ground Truth (t+1)</h2>
+                    </div>
+                    <div class="grid-5" id="input-sequence">
+                        <!-- Inputs injected here -->
+                    </div>
+                </div>
+
+                <!-- Middle Row: Experts & Routing -->
+                <div class="split-row">
+                    <!-- Experts -->
+                    <div class="panel glass experts-panel">
+                        <div class="panel-header">
+                            <h2>Expert Predictions</h2>
+                        </div>
+                        <div class="grid-2x2" id="expert-preds">
+                            <!-- Expert preds injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Routing Weights -->
+                    <div class="panel glass routing-panel">
+                        <div class="panel-header">
+                            <h2>Routing Attention (Uncertainty-Aware)</h2>
+                        </div>
+                        <div class="grid-2x2" id="routing-weights">
+                            <!-- Weights injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Row: Final Result & Interactive Comparison -->
+                <div class="panel glass result-panel">
+                    <div class="panel-header">
+                        <h2>AURORA Prediction vs Ground Truth</h2>
+                        <div class="controls">
+                            <button id="toggle-error" class="btn">Show Error Map</button>
+                        </div>
+                    </div>
+                    <div class="comparison-container" id="comparison-view">
+                        <!-- Final Result Image -->
+                        <div class="img-wrapper">
+                            <img id="final-pred-img" src="" alt="AURORA Prediction">
+                            <div class="overlay-label">AURORA</div>
+                        </div>
+                        <!-- Ground Truth Image (for simple side-by-side or toggle) -->
+                        <div class="img-wrapper">
+                            <img id="gt-img-comp" src="" alt="Ground Truth">
+                            <div class="overlay-label">Ground Truth</div>
+                        </div>
+                        <!-- Error Map (Hidden by default) -->
+                        <div class="img-wrapper hidden" id="error-map-wrapper">
+                            <img id="error-map-img" src="" alt="Error Map">
+                            <div class="overlay-label">Error Map</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Background Animation Canvas -->
+    <canvas id="bg-canvas"></canvas>
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initDashboard();
+            initBackground();
+        });
+
+        let dashboardData = null;
+        let currentSampleId = null;
+
+        async function initDashboard() {
+            try {
+                const response = await fetch('data/dashboard_data.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                dashboardData = await response.json();
+
+                renderMetrics(dashboardData.summary);
+                renderSampleList(dashboardData.samples);
+
+                // Load first sample by default
+                if (dashboardData.samples.length > 0) {
+                    loadSample(dashboardData.samples[0].id);
+                }
+            } catch (error) {
+                console.error("Failed to load dashboard data:", error);
+                const mainContent = document.querySelector('.main-content');
+                if (mainContent) {
+                    mainContent.innerHTML = `
+                <div class="error-msg" style="color: red; padding: 2rem;">
+                    <h2>Error Loading Data</h2>
+                    <p>Failed to fetch data/dashboard_data.json.</p>
+                    <p>Details: ${error.message}</p>
+                    <p>Please ensure you are accessing this via a web server (e.g. localhost:8000) and that generate_data.py ran successfully.</p>
+                </div>
+            `;
+                }
+            }
+        }
+
+        function renderMetrics(summary) {
+            const metricsContainer = document.getElementById('metrics-summary');
+            if (!metricsContainer) return;
+            metricsContainer.innerHTML = '';
+
+            const order = ['Advection', 'Morphology', 'Emergence', 'Temporal', 'AURORA'];
+
+            order.forEach(model => {
+                if (!summary[model]) return;
+
+                const data = summary[model];
+                const card = document.createElement('div');
+                card.className = `metric-card ${model === 'AURORA' ? 'highlight' : ''}`;
+
+                card.innerHTML = `
+            <span class="label">${model}</span>
+            <div class="value">${data.avg_ssim.toFixed(4)}</div>
+            <div class="sub-value">PSNR: ${data.avg_psnr.toFixed(2)} dB</div>
+        `;
+
+                metricsContainer.appendChild(card);
+            });
+        }
+
+        function renderSampleList(samples) {
+            const listContainer = document.getElementById('sample-list');
+            if (!listContainer) return;
+            listContainer.innerHTML = '';
+
+            samples.forEach(sample => {
+                const item = document.createElement('div');
+                item.className = 'sample-item';
+                item.dataset.id = sample.id;
+                item.textContent = sample.id.replace('_', ' ').toUpperCase();
+
+                item.addEventListener('click', () => {
+                    loadSample(sample.id);
+                });
+
+                listContainer.appendChild(item);
+            });
+        }
+
+        function loadSample(sampleId) {
+            currentSampleId = sampleId;
+
+            // Update Active State
+            document.querySelectorAll('.sample-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.id === sampleId);
+            });
+
+            const sampleData = dashboardData.samples.find(s => s.id === sampleId);
+            const basePath = `data/samples/${sampleId}/`;
+
+            // 1. Input Sequence
+            const inputsContainer = document.getElementById('input-sequence');
+            if (inputsContainer) {
+                inputsContainer.innerHTML = '';
+                for (let i = 0; i < 4; i++) {
+                    const img = createImgCard(`${basePath}input_t${i}.png`, `Input T-${3 - i}`);
+                    inputsContainer.appendChild(img);
+                }
+                inputsContainer.appendChild(createImgCard(`${basePath}gt.png`, 'Ground Truth (T+1)'));
+            }
+
+            // 2. Expert Predictions
+            const expertsContainer = document.getElementById('expert-preds');
+            if (expertsContainer) {
+                expertsContainer.innerHTML = '';
+                expertsContainer.appendChild(createImgCard(`${basePath}pred_Advection.png`, 'Advection (Flow)'));
+                expertsContainer.appendChild(createImgCard(`${basePath}pred_Morphology.png`, 'Morphology (UNet)'));
+                expertsContainer.appendChild(createImgCard(`${basePath}pred_Emergence.png`, 'Emergence (Diff)'));
+                expertsContainer.appendChild(createImgCard(`${basePath}pred_Temporal.png`, 'Temporal (LSTM)'));
+            }
+
+            // 3. Comparison
+            const finalImg = document.getElementById('final-pred-img');
+            if (finalImg) finalImg.src = `${basePath}pred_AURORA.png`;
+
+            const gtImg = document.getElementById('gt-img-comp');
+            if (gtImg) gtImg.src = `${basePath}gt.png`;
+
+            // 4. Weights
+            const weightsContainer = document.getElementById('routing-weights');
+            if (weightsContainer) {
+                weightsContainer.innerHTML = '';
+                weightsContainer.appendChild(createImgCard(`${basePath}weight_Advection.png`, 'W: Advection'));
+                weightsContainer.appendChild(createImgCard(`${basePath}weight_Morphology.png`, 'W: Morphology'));
+                weightsContainer.appendChild(createImgCard(`${basePath}weight_Emergence.png`, 'W: Emergence'));
+                weightsContainer.appendChild(createImgCard(`${basePath}weight_Temporal.png`, 'W: Temporal'));
+            }
+
+            const errBtn = document.getElementById('toggle-error');
+            if (errBtn) errBtn.style.display = 'none';
+        }
+
+        function createImgCard(src, title) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'img-wrapper';
+
+            const img = document.createElement('img');
+            img.src = src;
+            img.loading = 'lazy';
+
+            const label = document.createElement('div');
+            label.className = 'overlay-label';
+            label.textContent = title;
+
+            wrapper.appendChild(img);
+            wrapper.appendChild(label);
+
+            return wrapper;
+        }
+
+        function initBackground() {
+            const canvas = document.getElementById('bg-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            let width, height;
+            let particles = [];
+
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            }
+
+            window.addEventListener('resize', resize);
+            resize();
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * height;
+                    this.vx = (Math.random() - 0.5) * 0.5;
+                    this.vy = (Math.random() - 0.5) * 0.5;
+                    this.size = Math.random() * 2;
+                    this.alpha = Math.random() * 0.5 + 0.1;
+                }
+
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    if (this.x < 0) this.x = width;
+                    if (this.x > width) this.x = 0;
+                    if (this.y < 0) this.y = height;
+                    if (this.y > height) this.y = 0;
+                }
+
+                draw() {
+                    ctx.fillStyle = `rgba(0, 240, 255, ${this.alpha})`;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            for (let i = 0; i < 50; i++) {
+                particles.push(new Particle());
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+        }
+    </script>
+</body>
+
+</html>

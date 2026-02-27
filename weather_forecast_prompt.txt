@@ -1,0 +1,30 @@
+
+You are a meteorology reasoning assistant.
+
+You are given analyzed satellite cloud-motion data derived from infrared imagery.
+
+Based on the structured signals below, describe in natural language what is likely to happen in the next 30–60 minutes in this region.
+
+Cloud Motion Data:
+- Dominant motion direction: West
+- Motion speed: 0.15 px/frame
+- Cloud thickening zones: Central-Central
+- Cloud thinning zones: Central-Central
+- Cold cloud tops concentration: Central-Central
+- Cloud growth rate: -6.6%
+- Divergence/Convergence pattern: Stable
+- Model uncertainty areas: Central-Central (High confidence)
+
+Tasks:
+1. Describe the expected cloud movement.
+2. Predict areas likely to experience rainfall or storm intensification.
+3. Predict areas where clouds may dissipate.
+4. Mention confidence level based on uncertainty.
+5. Explain the reasoning in simple meteorological terms.
+
+Output format:
+- Movement summary
+- Rainfall/storm prediction
+- Dissipation zones
+- Confidence note
+- Reasoning
